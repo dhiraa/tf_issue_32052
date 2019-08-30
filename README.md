@@ -12,9 +12,9 @@ Note: The code in `east_model.py` is still under porting and testing phase from 
  It may also have something to do with this memory increase.
 
 Functions to look for:
-- generate_image_tf_records
-- east_features_decode
-- _get_dataset
+- [generate_image_tf_records](dummy_datasets.py)
+- [ east_features_decode](dummy_datasets.py)
+- [_get_dataset](dummy_datasets.py)
 
 
 ### Observation:
