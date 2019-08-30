@@ -1,0 +1,7 @@
+tensorflow-gpu==2.0.0-rc0
+matplotlib
+absl
+tqdm
+numpy
+tracemalloc
+memory-profiler
