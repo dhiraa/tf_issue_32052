@@ -48,5 +48,7 @@ the memory usage spikes with each epoch.
 #### TODO
 ```python parse_objgraph_log.py # works well only when objgraph outputs 50 items :(
 xdg-open objgraph_tf_dataset_analysis.csv #each column says how many new objects were added
+
+cat log.txt #for pretty colorful prints
 ```
 
