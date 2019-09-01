@@ -1,0 +1,470 @@
+WARNING: Logging before flag parsing goes to stderr.
+E0902 00:26:06.938746 140169262491456 print_helper.py:68] [31m{'mode': 'test_east_iterator', 'dataset': 'east'}[0m
+  0%|          | 0/5 [00:00<?, ?it/s]100%|██████████| 5/5 [00:00<00:00, 8878.71it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 5272.54it/s]2019-09-02 00:26:07.335851: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcuda.so.1
+2019-09-02 00:26:07.355036: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:1006] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2019-09-02 00:26:07.355506: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1618] Found device 0 with properties: 
+name: GeForce GTX 1060 with Max-Q Design major: 6 minor: 1 memoryClockRate(GHz): 1.48
+pciBusID: 0000:01:00.0
+2019-09-02 00:26:07.355686: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudart.so.10.0
+2019-09-02 00:26:07.356588: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcublas.so.10.0
+2019-09-02 00:26:07.357306: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcufft.so.10.0
+2019-09-02 00:26:07.357493: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcurand.so.10.0
+2019-09-02 00:26:07.358475: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcusolver.so.10.0
+2019-09-02 00:26:07.359242: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcusparse.so.10.0
+2019-09-02 00:26:07.361833: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudnn.so.7
+2019-09-02 00:26:07.361939: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:1006] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2019-09-02 00:26:07.362374: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:1006] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2019-09-02 00:26:07.362728: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1746] Adding visible gpu devices: 0
+2019-09-02 00:26:07.363289: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2019-09-02 00:26:07.387470: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2208000000 Hz
+2019-09-02 00:26:07.388883: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x556370099500 executing computations on platform Host. Devices:
+2019-09-02 00:26:07.388913: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): Host, Default Version
+2019-09-02 00:26:07.437864: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:1006] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2019-09-02 00:26:07.438327: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x55636ffdcc30 executing computations on platform CUDA. Devices:
+2019-09-02 00:26:07.438342: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): GeForce GTX 1060 with Max-Q Design, Compute Capability 6.1
+2019-09-02 00:26:07.438469: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:1006] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2019-09-02 00:26:07.438835: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1618] Found device 0 with properties: 
+name: GeForce GTX 1060 with Max-Q Design major: 6 minor: 1 memoryClockRate(GHz): 1.48
+pciBusID: 0000:01:00.0
+2019-09-02 00:26:07.438864: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudart.so.10.0
+2019-09-02 00:26:07.438875: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcublas.so.10.0
+2019-09-02 00:26:07.438885: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcufft.so.10.0
+2019-09-02 00:26:07.438894: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcurand.so.10.0
+2019-09-02 00:26:07.438904: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcusolver.so.10.0
+2019-09-02 00:26:07.438914: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcusparse.so.10.0
+2019-09-02 00:26:07.438943: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudnn.so.7
+2019-09-02 00:26:07.438998: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:1006] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2019-09-02 00:26:07.439428: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:1006] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2019-09-02 00:26:07.439778: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1746] Adding visible gpu devices: 0
+2019-09-02 00:26:07.439802: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudart.so.10.0
+2019-09-02 00:26:07.440699: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1159] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-09-02 00:26:07.440709: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1165]      0 
+2019-09-02 00:26:07.440713: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1178] 0:   N 
+2019-09-02 00:26:07.440893: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:1006] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2019-09-02 00:26:07.441281: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:1006] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2019-09-02 00:26:07.441689: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1304] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 5088 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1060 with Max-Q Design, pci bus id: 0000:01:00.0, compute capability: 6.1)
+
+W0902 00:26:07.996980 140169262491456 deprecation.py:323] From /home/mageswarand/.conda/envs/default/lib/python3.7/site-packages/tensorflow_core/python/data/util/random_seed.py:58: where (from tensorflow.python.ops.array_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.where in 2.0, which has the same broadcast rule as np.where
+W0902 00:26:26.239340 140169262491456 ag_logging.py:146] Entity <bound method CodeMap.items of {<code object east_features_decode at 0x7f7b1e822e40, file "/opt/tf_issue_32052/dummy_datasets.py", line 147>: {}}> appears to be a generator function. It will not be converted by AutoGraph.
+Writing to /opt/tf_issue_32052/data/train_data_img/0.tfrecords
+Found : /opt/tf_issue_32052/data/train_data_img/0.tfrecords
+Writing to /opt/tf_issue_32052/data/train_data_img/1.tfrecords
+Found : /opt/tf_issue_32052/data/train_data_img/1.tfrecords
+Writing to /opt/tf_issue_32052/data/train_data_img/2.tfrecords
+Found : /opt/tf_issue_32052/data/train_data_img/2.tfrecords
+Writing to /opt/tf_issue_32052/data/train_data_img/3.tfrecords
+Found : /opt/tf_issue_32052/data/train_data_img/3.tfrecords
+Writing to /opt/tf_issue_32052/data/train_data_img/4.tfrecords
+Found : /opt/tf_issue_32052/data/train_data_img/4.tfrecords
+Writing to /opt/tf_issue_32052/data/val_data_img/0.tfrecords
+Found : /opt/tf_issue_32052/data/val_data_img/0.tfrecords
+Writing to /opt/tf_issue_32052/data/val_data_img/1.tfrecords
+Found : /opt/tf_issue_32052/data/val_data_img/1.tfrecords
+Filename: tf_memory_test.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+   142    303.3 MiB    303.3 MiB   @profile
+   143                             def gen_data(IS_EAST_IMAGE_TEST,
+   144                                          TRAIN_DATA,
+   145                                          VAL_DATA,
+   146                                          NUM_SAMPLES_PER_FILE,
+   147                                          NUM_FEATURES=None):
+   148    303.3 MiB      0.0 MiB       if IS_EAST_IMAGE_TEST:
+   149    303.3 MiB      0.0 MiB           generate_image_tf_records(number_files=5, out_dir=TRAIN_DATA,
+   150    303.6 MiB      0.3 MiB                                     NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE)
+   151    303.6 MiB      0.0 MiB           generate_image_tf_records(number_files=2, out_dir=VAL_DATA,
+   152    303.6 MiB      0.0 MiB                                     NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE)
+   153                                 else:
+   154                                     generate_numpy_tf_records(number_files=10,
+   155                                                               out_dir=TRAIN_DATA,
+   156                                                               NUM_FEATURES=NUM_FEATURES,
+   157                                                               NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE)
+   158                                     generate_numpy_tf_records(number_files=3, out_dir=VAL_DATA,
+   159                                                               NUM_FEATURES=NUM_FEATURES,
+   160                                                               NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE)
+
+
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+Filename: /opt/tf_issue_32052/dummy_datasets.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+   207    303.6 MiB    303.6 MiB   @profile
+   208                             def test_dataset(data_path,
+   209                                              BATCH_SIZE,
+   210                                              IS_EAST_IMAGE_TEST):
+   211                                 """
+   212                                 Reads the TFRecords and creates TF Datasets
+   213                                 :param data_path:
+   214                                 :return:
+   215                                 """
+   216    303.6 MiB      0.0 MiB       _num_cores = 4
+   217                             
+   218    303.6 MiB      0.0 MiB       path = os.path.join(data_path, "*.tfrecords")
+   219    303.6 MiB      0.0 MiB       path = path.replace("//", "/")
+   220   1176.0 MiB    872.4 MiB       files = tf.data.Dataset.list_files(path)
+   221                                 # TF dataset APIs
+   222   1176.0 MiB      0.0 MiB       dataset = files.interleave(
+   223   1176.0 MiB      0.0 MiB           tf.data.TFRecordDataset,
+   224   1176.0 MiB      0.0 MiB           cycle_length=_num_cores,
+   225   1179.8 MiB      3.8 MiB           num_parallel_calls=tf.data.experimental.AUTOTUNE)
+   226   1180.8 MiB      1.0 MiB       dataset = dataset.shuffle(BATCH_SIZE*10, 42)
+   227                                 # Map the generator output as features as a dict and label
+   228   1180.8 MiB      0.0 MiB       if IS_EAST_IMAGE_TEST:
+   229   1184.8 MiB      4.0 MiB           dataset = dataset.map(map_func=east_features_decode, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+   230                                 else:
+   231                                     dataset = dataset.map(map_func=numpy_array_decode, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+   232                             
+   233   1184.8 MiB      0.0 MiB       dataset = dataset.batch(batch_size=BATCH_SIZE, drop_remainder=False)
+   234   1184.8 MiB      0.0 MiB       dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+   235                             
+   236   1700.9 MiB    347.2 MiB       for features, label in dataset:
+   237   1698.5 MiB      5.9 MiB           try:
+   238   1698.5 MiB      1.3 MiB               for key in features.keys():
+   239   1698.5 MiB      1.5 MiB                   print(".", sep="")#print(f"{features[key].shape}", sep= " ")
+   240                                     #print("\n")
+   241                                     except:
+   242                                         print(".", sep="") #hacky way
+
+
+Filename: tf_memory_test.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+   162    303.3 MiB    303.3 MiB   @profile
+   163                             def main(args):
+   164                             
+   165    303.3 MiB      0.0 MiB       memory_used = []
+   166    303.3 MiB      0.0 MiB       process = psutil.Process(os.getpid())
+   167                             
+   168                                 #TODO add into argparser
+   169    303.3 MiB      0.0 MiB       IS_EAST_IMAGE_TEST = True
+   170                             
+   171    303.3 MiB      0.0 MiB       NUM_ARRAYS_PER_FILE = 10000
+   172                             
+   173                                 #TODO decode function needs this value as part of dataset map function,  hence for now harcoded value
+   174                                 # if needed chnage manually at func `numpy_array_decode` in dummy_dataset.py also
+   175    303.3 MiB      0.0 MiB       NUM_FEATURES = 250
+   176                             
+   177    303.3 MiB      0.0 MiB       NUM_IMAGES_PER_FILE = 8
+   178                             
+   179    303.3 MiB      0.0 MiB       BATCH_SIZE = 4
+   180    303.3 MiB      0.0 MiB       TRAIN_DATA = os.getcwd() + "/data/train_data_img"
+   181    303.3 MiB      0.0 MiB       VAL_DATA = os.getcwd() + "/data/val_data_img"
+   182    303.3 MiB      0.0 MiB       MODEL_DIR = os.getcwd() + "/data/" + "east_net"
+   183    303.3 MiB      0.0 MiB       EXPORT_DIR = MODEL_DIR + "/" + "export"
+   184    303.3 MiB      0.0 MiB       NUM_EPOCHS = 3
+   185    303.3 MiB      0.0 MiB       NUM_SAMPLES_PER_FILE = NUM_IMAGES_PER_FILE
+   186                             
+   187                             
+   188    303.3 MiB      0.0 MiB       if args["dataset"] == "numpy":
+   189                                     IS_EAST_IMAGE_TEST = False
+   190                                     BATCH_SIZE = 128
+   191                                     TRAIN_DATA = os.getcwd() + "/data/train_data"
+   192                                     VAL_DATA = os.getcwd() + "/data/val_data"
+   193                                     MODEL_DIR = os.getcwd() + "/" + "data/fwd_nnet"
+   194                                     EXPORT_DIR = MODEL_DIR + "/" + "export"
+   195                                     NUM_EPOCHS = 25
+   196                                     NUM_SAMPLES_PER_FILE = NUM_ARRAYS_PER_FILE
+   197    303.3 MiB      0.0 MiB       elif args["dataset"] == "east":
+   198    303.3 MiB      0.0 MiB           pass
+   199                                 else:
+   200                                     print_error("Invalid dataset")
+   201                             
+   202    303.3 MiB      0.0 MiB       TOTAL_STEPS_PER_FILE = NUM_SAMPLES_PER_FILE / BATCH_SIZE
+   203                             
+   204    303.3 MiB      0.0 MiB       gen_data(IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST,
+   205    303.3 MiB      0.0 MiB                TRAIN_DATA=TRAIN_DATA,
+   206    303.3 MiB      0.0 MiB                VAL_DATA=VAL_DATA,
+   207    303.3 MiB      0.0 MiB                NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE,
+   208    303.6 MiB      0.3 MiB                NUM_FEATURES=NUM_FEATURES)
+   209                             
+   210    303.6 MiB      0.0 MiB       if args["mode"] == "test_east_iterator":
+   211    303.6 MiB      0.0 MiB           test_dataset(data_path=TRAIN_DATA,
+   212    303.6 MiB      0.0 MiB                        BATCH_SIZE=BATCH_SIZE,
+   213   1700.9 MiB   1397.3 MiB                        IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
+   214                                     # test_dataset(VAL_DATA)
+   215   1700.9 MiB      0.0 MiB           return
+   216                             
+   217                                 # print(dataset_to_iterator(data_path=TRAIN_DATA))
+   218                             
+   219                                 if IS_EAST_IMAGE_TEST:
+   220                                     model = EASTTFModel(model_root_directory="store")
+   221                                 else:
+   222                                     model = NNet()
+   223                             
+   224                                 estimator = tf.estimator.Estimator(model_fn=model,
+   225                                                                    config=_init_tf_config(TOTAL_STEPS_PER_FILE=TOTAL_STEPS_PER_FILE,
+   226                                                                                           MODEL_DIR=MODEL_DIR), params=None)
+   227                                 memory_usage_psutil()
+   228                                 print('objgraph growth list')
+   229                                 objgraph.show_growth(limit=50)
+   230                                 # print(objgraph.get_leaking_objects())
+   231                             
+   232                                 for epoch in tqdm(range(NUM_EPOCHS)):
+   233                             
+   234                                     print("\n\n\n\n\n\n")
+   235                                     print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> New Epoch")
+   236                                     memory_usage_psutil()
+   237                                     memory_used.append(process.memory_info()[0] / float(2 ** 20))
+   238                                     print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training")
+   239                                     train(estimator=estimator,
+   240                                           TRAIN_DATA=TRAIN_DATA,
+   241                                           BATCH_SIZE=BATCH_SIZE,
+   242                                           IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
+   243                                     print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Evaluating")
+   244                                     evaluate(estimator=estimator,
+   245                                              VAL_DATA=VAL_DATA,
+   246                                              BATCH_SIZE=BATCH_SIZE,
+   247                                              IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
+   248                                     print('objgraph growth list after iteration {}'.format(epoch))
+   249                                     objgraph.show_growth(limit=50)
+   250                             
+   251                                 plt.plot(memory_used)
+   252                                 plt.title('Evolution of memory')
+   253                                 plt.xlabel('iteration')
+   254                                 plt.ylabel('memory used (MB)')
+   255                                 plt.savefig("memory_usage.png")
+   256                                 plt.show()
+   257                             
+   258                                 print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> New Epoch")
+   259                                 export_model(estimator=estimator, model_export_path=EXPORT_DIR)
+   260                             
+   261                                 (objgraph.get_leaking_objects())
+
+
+Top 100 lines
+#1: python3.7/posixpath.py:365: 502.4 KiB
+    path = sep*initial_slashes + path
+#2: site-packages/memory_profiler.py:710: 238.8 KiB
+    self._original_trace_function(frame, event, arg)
+#3: python3.7/abc.py:143: 181.9 KiB
+    return _abc_subclasscheck(cls, subclass)
+#4: python3.7/linecache.py:137: 156.7 KiB
+    lines = fp.readlines()
+#5: python3.7/inspect.py:742: 144.0 KiB
+    os.path.realpath(f)] = module.__name__
+#6: python3.7/inspect.py:738: 144.0 KiB
+    _filesbymodname[modname] = f
+#7: util/tf_stack.py:195: 72.4 KiB
+    ret.append((filename, lineno, name, frame_globals, func_start_lineno))
+#8: python3.7/ast.py:326: 71.2 KiB
+    new_node = self.visit(old_value)
+#9: <string>:1: 67.5 KiB
+#10: site-packages/memory_profiler.py:694: 60.3 KiB
+    if frame.f_code in self.code_map:
+#11: pyct/anno.py:123: 52.7 KiB
+    node._fields += (field_name,)
+#12: pyct/anno.py:118: 40.2 KiB
+    setattr(node, field_name, annotations)
+#13: core/converter.py:346: 38.8 KiB
+    return super(Base, self).visit(node)
+#14: static_analysis/liveness.py:167: 38.5 KiB
+    frozenset(self.current_analyzer.in_[cfg_node]))
+#15: python3.7/ast.py:262: 37.2 KiB
+    return visitor(node)
+#16: static_analysis/reaching_definitions.py:307: 35.6 KiB
+    node = super(TreeAnnotator, self).visit(node)
+#17: static_analysis/liveness.py:161: 35.6 KiB
+    node = super(Annotator, self).visit(node)
+#18: pyct/ast_util.py:55: 27.5 KiB
+    new_node = type(node)(**new_fields)
+#19: pyct/qual_names.py:97: 27.0 KiB
+    self.qn = (base,)
+#20: static_analysis/activity.py:119: 26.5 KiB
+    self.read |= other.read
+#21: gast/gast.py:13: 25.8 KiB
+    self._fields = Fields
+#22: gast/gast.py:8: 25.8 KiB
+    def create_node(self, *args, **kwargs):
+#23: python3.7/weakref.py:109: 24.8 KiB
+    def remove(wr, selfref=ref(self), _atomic_removal=_remove_dead_weakref):
+#24: python3.7/weakref.py:288: 23.5 KiB
+    def update(*args, **kwargs):
+#25: python3.7/inspect.py:732: 23.4 KiB
+    for modname, module in list(sys.modules.items()):
+#26: python3.7/ast.py:260: 23.2 KiB
+    method = 'visit_' + node.__class__.__name__
+#27: gast/astn.py:27: 21.1 KiB
+    setattr(new_node, attr, getattr(node, attr))
+#28: python3.7/ast.py:172: 21.0 KiB
+    def iter_fields(node):
+#29: gast/astn.py:22: 20.6 KiB
+    new_node = getattr(to, cls)()
+#30: static_analysis/activity.py:76: 18.9 KiB
+    self.deleted = set()
+#31: python3.7/weakref.py:121: 18.6 KiB
+    self._iterating = set()
+#32: util/tf_stack.py:182: 17.4 KiB
+    lineno = f.f_lineno
+#33: python3.7/ast.py:35: 16.5 KiB
+    return compile(source, filename, mode, PyCF_ONLY_AST)
+#34: util/tf_stack.py:187: 16.5 KiB
+    func_start_lineno = co.co_firstlineno
+#35: python3.7/ast.py:132: 15.6 KiB
+    setattr(new_node, attr, getattr(old_node, attr))
+#36: static_analysis/activity.py:75: 15.3 KiB
+    self.read = set()
+#37: static_analysis/activity.py:74: 15.3 KiB
+    self.modified = set()
+#38: python3.7/enum.py:589: 14.5 KiB
+    def __hash__(self):
+#39: python3.7/ast.py:258: 14.4 KiB
+    def visit(self, node):
+#40: pyct/qual_names.py:159: 13.4 KiB
+    def __hash__(self):
+#41: python3.7/sre_parse.py:426: 13.2 KiB
+    not nested and not items))
+#42: static_analysis/activity.py:123: 12.0 KiB
+    self.read.add(name)
+#43: static_analysis/liveness.py:231: 11.7 KiB
+    frozenset(self.current_analyzer.out[cfg_node]))
+#44: gast/astn.py:17: 11.0 KiB
+    def generic_visit(self, node):
+#45: pyct/qual_names.py:68: 10.6 KiB
+    self._has_attr = False
+#46: pyct/qual_names.py:218: 10.4 KiB
+    anno.setanno(node, anno.Basic.QN, QN(node.id))
+#47: python3.7/_weakrefset.py:37: 10.1 KiB
+    self.data = set()
+#48: python3.7/contextlib.py:82: 9.2 KiB
+    self.gen = func(*args, **kwds)
+#49: astor/node_util.py:143: 9.2 KiB
+    return visitor(node)
+#50: static_analysis/activity.py:118: 9.0 KiB
+    self.modified |= other.modified
+#51: pyct/origin_info.py:245: 8.7 KiB
+    source_lines = source.split('\n')
+#52: python3.7/ast.py:266: 8.7 KiB
+    for field, value in iter_fields(node):
+#53: python3.7/_weakrefset.py:48: 8.5 KiB
+    self._iterating = set()
+#54: pyct/transformer.py:371: 8.5 KiB
+    replacement = self.visit(node)
+#55: python3.7/sre_compile.py:783: 8.4 KiB
+    groupindex, tuple(indexgroup)
+#56: pyct/cfg.py:68: 8.3 KiB
+    self.next = frozenset(self.next)
+#57: python3.7/_weakrefset.py:38: 8.2 KiB
+    def _remove(item, selfref=ref(self)):
+#58: pyct/ast_util.py:51: 8.0 KiB
+    new_fields = {}
+#59: python3.7/tempfile.py:550: 7.8 KiB
+    newline=newline, encoding=encoding)
+#60: python3.7/ast.py:311: 7.7 KiB
+    def generic_visit(self, node):
+#61: static_analysis/activity.py:77: 7.5 KiB
+    self.params = weakref.WeakValueDictionary()
+#62: static_analysis/activity.py:71: 7.4 KiB
+    self.isolated = isolated
+#63: python3.7/weakref.py:292: 7.4 KiB
+    self, *args = args
+#64: tensorflow/__init__.py:46: 7.0 KiB
+    self.__dict__.update(module.__dict__)
+#65: pyct/origin_info.py:138: 6.9 KiB
+    source_map[line_loc] = origin_info
+#66: python3.7/ast.py:317: 6.9 KiB
+    value = self.visit(value)
+#67: python3.7/ast.py:264: 6.9 KiB
+    def generic_visit(self, node):
+#68: static_analysis/reaching_definitions.py:253: 6.7 KiB
+    tuple(analyzer.in_[cfg_node].value.get(qn, ())))
+#69: python3.7/copy.py:76: 6.6 KiB
+    return copier(x)
+#70: psutil/_pslinux.py:1724: 6.5 KiB
+    ctime = float(self._parse_stat_file()['create_time'])
+#71: site-packages/memory_profiler.py:781: 6.5 KiB
+    stream.write(unicode(tmp, 'UTF-8'))
+#72: site-packages/memory_profiler.py:712: 6.4 KiB
+    return self.trace_memory_usage
+#73: pyct/templates.py:56: 5.8 KiB
+    node.ctx = self._ctx_override()
+#74: static_analysis/reaching_definitions.py:80: 5.8 KiB
+    self.value = {}
+#75: pyct/origin_info.py:181: 5.3 KiB
+    return node.lineno + self._lineno_offset
+#76: gast/astn.py:9: 5.2 KiB
+    def _visit(self, node):
+#77: gast/astn.py:11: 5.0 KiB
+    return [self._visit(n) for n in node]
+#78: pyct/anno.py:117: 5.0 KiB
+    annotations = getattr(node, field_name, {})
+#79: pyct/qual_names.py:108: 4.9 KiB
+    def has_subscript(self):
+#80: python3.7/_weakrefset.py:84: 4.7 KiB
+    self.data.add(ref(item, self._remove))
+#81: static_analysis/activity.py:253: 4.6 KiB
+    self.scope = Scope(self.scope, isolated=isolated)
+#82: impl/conversion.py:621: 4.5 KiB
+    ag_internal.__dict__.update(operators.__dict__)
+#83: python3.7/weakref.py:118: 4.5 KiB
+    self._remove = remove
+#84: pyct/transformer.py:237: 4.3 KiB
+    self.state = _State()
+#85: pyct/ast_util.py:37: 4.3 KiB
+    def copy(self, node):
+#86: pyct/qual_names.py:79: 4.2 KiB
+    self.qn = (base, attr)
+#87: framework/ops.py:1713: 4.1 KiB
+    self._graph = g
+#88: framework/func_graph.py:410: 4.0 KiB
+    self._auto_cast_variable_read_dtype = old_auto_cast_var_read_dtype
+#89: <frozen importlib._bootstrap_external>:525: 4.0 KiB
+#90: python3.7/ast.py:312: 3.8 KiB
+    for field, old_value in iter_fields(node):
+#91: python3.7/sre_parse.py:112: 3.8 KiB
+    self.pattern = pattern
+#92: pyct/qual_names.py:225: 3.6 KiB
+    QN(anno.getanno(node.value, anno.Basic.QN), attr=node.attr))
+#93: <frozen importlib._bootstrap_external>:59: 3.5 KiB
+#94: astor/code_gen.py:531: 3.5 KiB
+    self.write(node.id)
+#95: pyct/transformer.py:448: 3.4 KiB
+    def visit(self, node):
+#96: static_analysis/reaching_definitions.py:141: 3.3 KiB
+    def_ = self._definition_factory()
+#97: pyct/anno.py:104: 3.3 KiB
+    def getanno(node, key, default=FAIL, field_name='___pyct_anno'):
+#98: static_analysis/reaching_definitions.py:72: 3.2 KiB
+    self.value = {
+#99: framework/ops.py:1786: 3.1 KiB
+    for i, output_type in enumerate(output_types)
+#100: util/object_identity.py:160: 3.1 KiB
+    self._storage = set([self._wrap_key(obj) for obj in list(*args)])
+685 other: 382.9 KiB
+685 other: 0.4 MiB
+Total allocated size: 3156.8 KiB
+Total allocated size: 3.1 MiB

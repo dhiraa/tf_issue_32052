@@ -1,7 +1,7 @@
 import glob
 import os
 import shutil
-
+import argparse
 import tensorflow as tf
 from tqdm import tqdm
 import numpy as np
@@ -11,9 +11,9 @@ from absl import logging
 
 # import tensorflow.compat.v1 as tf
 # tf.disable_v2_behavior()
-from dummy_datasets import _get_dataset, generate_image_tf_records, generate_numpy_tf_records
+from dummy_datasets import _get_dataset, generate_image_tf_records, generate_numpy_tf_records, test_dataset
 from east_model import EASTTFModel
-from print_helper import memory_usage_psutil, print_error
+from print_helper import memory_usage_psutil, print_error, print_info
 from simple_ffwd_net import NNet
 from tracemalloc_utils import display_top
 
@@ -28,7 +28,7 @@ import linecache
 import os
 import tracemalloc
 
-from user_config import *
+# from user_config import *
 
 """
 1. Create TFRecords
@@ -39,12 +39,16 @@ from user_config import *
 """
 
 @profile
-def _init_tf_config(clear_model_data=False,
-                    save_checkpoints_steps=TOTAL_STEPS_PER_FILE * 3,
-                    # each TFRecord file has NUM_SAMPLE, so for every 3 TFRecord files store the checkpoint
-                    keep_checkpoint_max=5,
-                    save_summary_steps=TOTAL_STEPS_PER_FILE * 1,
-                    log_step_count_steps=TOTAL_STEPS_PER_FILE * 1):
+def _init_tf_config(TOTAL_STEPS_PER_FILE,
+                    MODEL_DIR,
+                    clear_model_data=False,
+                    keep_checkpoint_max=5):
+
+    save_checkpoints_steps=TOTAL_STEPS_PER_FILE * 3
+    # each TFRecord file has NUM_SAMPLE, so for every 3 TFRecord files store the checkpoint
+
+    save_summary_steps=TOTAL_STEPS_PER_FILE * 1
+    log_step_count_steps=TOTAL_STEPS_PER_FILE * 1
 
     run_config = tf.compat.v1.ConfigProto()
     run_config.gpu_options.allow_growth = True
@@ -68,26 +72,33 @@ def _init_tf_config(clear_model_data=False,
 
 
 @profile
-def _get_train_spec(max_steps=None):
+def _get_train_spec(TRAIN_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, max_steps=None):
     # Estimators expect an input_fn to take no arguments.
     # To work around this restriction, we use lambda to capture the arguments and provide the expected interface.
     return tf.estimator.TrainSpec(
-        input_fn=lambda: _get_dataset(data_path=TRAIN_DATA),
+        input_fn=lambda: _get_dataset(data_path=TRAIN_DATA,
+                                      BATCH_SIZE=BATCH_SIZE,
+                                      IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST),
         max_steps=max_steps,
         hooks=None)
 
 
 @profile
-def _get_eval_spec(steps):
+def _get_eval_spec(VAL_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, steps):
     return tf.estimator.EvalSpec(
-        input_fn=lambda: _get_dataset(data_path=VAL_DATA),
+        input_fn=lambda: _get_dataset(data_path=VAL_DATA,
+                                      BATCH_SIZE=BATCH_SIZE,
+                                      IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST),
         steps=steps,
         hooks=None)
 
 
 @profile
-def train(estimator, max_steps=None):
-    train_spec = _get_train_spec(max_steps=max_steps)
+def train(estimator, TRAIN_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, max_steps=None):
+    train_spec = _get_train_spec(TRAIN_DATA=TRAIN_DATA,
+                                 max_steps=max_steps,
+                                 BATCH_SIZE=BATCH_SIZE,
+                                 IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
     estimator.train(
         input_fn=train_spec.input_fn,
         hooks=train_spec.hooks,
@@ -95,8 +106,10 @@ def train(estimator, max_steps=None):
 
 
 @profile
-def evaluate(estimator, steps=None, checkpoint_path=None):
-    eval_spec = _get_eval_spec(steps=steps)
+def evaluate(estimator, VAL_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, steps=None, checkpoint_path=None):
+    eval_spec = _get_eval_spec(VAL_DATA=VAL_DATA, steps=steps,
+                               BATCH_SIZE=BATCH_SIZE,
+                               IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
     estimator.evaluate(
         input_fn=eval_spec.input_fn,
         steps=eval_spec.steps,
@@ -105,8 +118,8 @@ def evaluate(estimator, steps=None, checkpoint_path=None):
 
 
 @profile
-def serving_input_receiver_fn():
-    if EAST_IMAGE_TEST:
+def serving_input_receiver_fn(IS_EAST_IMAGE_TEST):
+    if IS_EAST_IMAGE_TEST:
         inputs = {
             "images": tf.compat.v1.placeholder(tf.float32, [None, None, None, 3]),
         }
@@ -126,26 +139,94 @@ def export_model(estimator, model_export_path):
         model_export_path,
         serving_input_receiver_fn=serving_input_receiver_fn)
 
+@profile
+def gen_data(IS_EAST_IMAGE_TEST,
+             TRAIN_DATA,
+             VAL_DATA,
+             NUM_SAMPLES_PER_FILE,
+             NUM_FEATURES=None):
+    if IS_EAST_IMAGE_TEST:
+        generate_image_tf_records(number_files=5, #TODO Fixed?
+                                  out_dir=TRAIN_DATA,
+                                  NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE)
+        generate_image_tf_records(number_files=2,
+                                  out_dir=VAL_DATA,
+                                  NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE)
+    else:
+        generate_numpy_tf_records(number_files=10, #TODO fixed?
+                                  out_dir=TRAIN_DATA,
+                                  NUM_FEATURES=NUM_FEATURES,
+                                  NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE)
+        generate_numpy_tf_records(number_files=3,
+                                  out_dir=VAL_DATA,
+                                  NUM_FEATURES=NUM_FEATURES,
+                                  NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE)
 
 @profile
-def main():
+def main(args):
+
     memory_used = []
     process = psutil.Process(os.getpid())
-    if EAST_IMAGE_TEST:
-        generate_image_tf_records(number_files=5, out_dir=TRAIN_DATA)
-        generate_image_tf_records(number_files=2, out_dir=VAL_DATA)
+
+    #TODO add into argparser
+    IS_EAST_IMAGE_TEST = True
+
+    NUM_ARRAYS_PER_FILE = 10000
+
+    #TODO decode function needs this value as part of dataset map function,  hence for now harcoded value
+    # if needed chnage manually at func `numpy_array_decode` in dummy_dataset.py also
+    NUM_FEATURES = 250
+
+    NUM_IMAGES_PER_FILE = 8
+
+    BATCH_SIZE = 4
+    TRAIN_DATA = os.getcwd() + "/data/train_data_img"
+    VAL_DATA = os.getcwd() + "/data/val_data_img"
+    MODEL_DIR = os.getcwd() + "/data/" + "east_net"
+    EXPORT_DIR = MODEL_DIR + "/" + "export"
+    NUM_EPOCHS = 3
+    NUM_SAMPLES_PER_FILE = NUM_IMAGES_PER_FILE
+
+
+    if args["dataset"] == "numpy":
+        IS_EAST_IMAGE_TEST = False
+        BATCH_SIZE = 128
+        TRAIN_DATA = os.getcwd() + "/data/train_data"
+        VAL_DATA = os.getcwd() + "/data/val_data"
+        MODEL_DIR = os.getcwd() + "/" + "data/fwd_nnet"
+        EXPORT_DIR = MODEL_DIR + "/" + "export"
+        NUM_EPOCHS = 25
+        NUM_SAMPLES_PER_FILE = NUM_ARRAYS_PER_FILE
+    elif args["dataset"] == "east":
+        pass
     else:
-        generate_numpy_tf_records(number_files=10, out_dir=TRAIN_DATA)
-        generate_numpy_tf_records(number_files=3, out_dir=VAL_DATA)
+        print_error("Invalid dataset")
+
+    TOTAL_STEPS_PER_FILE = NUM_SAMPLES_PER_FILE / BATCH_SIZE
+
+    gen_data(IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST,
+             TRAIN_DATA=TRAIN_DATA,
+             VAL_DATA=VAL_DATA,
+             NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE,
+             NUM_FEATURES=NUM_FEATURES)
+
+    if args["mode"] == "test_east_iterator":
+        test_dataset(data_path=TRAIN_DATA,
+                     BATCH_SIZE=BATCH_SIZE,
+                     IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
+        # test_dataset(VAL_DATA)
+        return
 
     # print(dataset_to_iterator(data_path=TRAIN_DATA))
 
-    if EAST_IMAGE_TEST:
+    if IS_EAST_IMAGE_TEST:
         model = EASTTFModel(model_root_directory="store")
     else:
         model = NNet()
 
-    estimator = tf.estimator.Estimator(model_fn=model, config=_init_tf_config(), params=None)
+    estimator = tf.estimator.Estimator(model_fn=model,
+                                       config=_init_tf_config(TOTAL_STEPS_PER_FILE=TOTAL_STEPS_PER_FILE,
+                                                              MODEL_DIR=MODEL_DIR), params=None)
     memory_usage_psutil()
     print('objgraph growth list')
     objgraph.show_growth(limit=50)
@@ -158,9 +239,15 @@ def main():
         memory_usage_psutil()
         memory_used.append(process.memory_info()[0] / float(2 ** 20))
         print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training")
-        train(estimator=estimator)
+        train(estimator=estimator,
+              TRAIN_DATA=TRAIN_DATA,
+              BATCH_SIZE=BATCH_SIZE,
+              IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
         print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Evaluating")
-        evaluate(estimator=estimator)
+        evaluate(estimator=estimator,
+                 VAL_DATA=VAL_DATA,
+                 BATCH_SIZE=BATCH_SIZE,
+                 IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
         print('objgraph growth list after iteration {}'.format(epoch))
         objgraph.show_growth(limit=50)
 
@@ -178,8 +265,16 @@ def main():
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Testing TF Dataset Memory usage : ')
+
+    parser.add_argument('-m', "--mode", default="", help="[test_east_iterator]")
+    parser.add_argument('-ds', "--dataset", default="east", help="[east/numpy]")
+
+    parsed_args = vars(parser.parse_args())
+
+    print_error(parsed_args)
     tracemalloc.start()
-    main()
+    main(parsed_args)
     snapshot = tracemalloc.take_snapshot()
     display_top(snapshot)
 

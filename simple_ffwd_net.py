@@ -2,12 +2,11 @@ import tensorflow as tf
 from memory_profiler import profile
 
 
-class NNet(object):
+class NNet():
     @profile
     def __init__(self):
         pass
 
-    @profile
     def __call__(self, features, labels, params, mode, config=None):
         """
         Used for the :tf_main:`model_fn <estimator/Estimator#__init__>`

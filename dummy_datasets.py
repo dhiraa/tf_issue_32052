@@ -1,4 +1,6 @@
-from user_config import *
+# from user_config import *
+import os
+
 import tensorflow as tf
 from tqdm import tqdm
 import numpy as np
@@ -7,23 +9,23 @@ from sklearn.datasets import make_regression
 from memory_profiler import profile
 
 
-@profile
+# @profile
 def _int64_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
-@profile
+# @profile
 def _bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
-@profile
+# @profile
 def _float_feature(value):
     return tf.train.Feature(float_list=tf.train.FloatList(value=[value]))
 
-@profile
+# @profile
 def _mat_feature(mat):
     return tf.train.Feature(float_list=tf.train.FloatList(value=mat.flatten()))
 
-@profile
+# @profile
 def get_numpy_array_size(arr):
     """
     Utility finction to get Numpy Array size
@@ -34,7 +36,7 @@ def get_numpy_array_size(arr):
     print("%d MBytes " % size)
     return size
 
-@profile
+# @profile
 def _get_regression_features(data, label):
     """
     Converts numpy array as TF features
@@ -47,7 +49,7 @@ def _get_regression_features(data, label):
         "label": _float_feature(label)
     }
 
-@profile
+# @profile
 def _get_east_features(image_mat, score_map_mat, geo_map_mat):
     """
     Given different features matrices, this routine wraps the matrices as TF features
@@ -58,8 +60,11 @@ def _get_east_features(image_mat, score_map_mat, geo_map_mat):
         "geo_maps": _mat_feature(geo_map_mat),
     }
 
-@profile
-def generate_numpy_tf_records(number_files, out_dir):
+# @profile
+def generate_numpy_tf_records(number_files, 
+                              out_dir,
+                              NUM_SAMPLES_PER_FILE,
+                              NUM_FEATURES):
     """
     Generates random data for Linear Regression and stores them as TFRecords
     :param number_files: Number of TF records
@@ -92,8 +97,10 @@ def generate_numpy_tf_records(number_files, out_dir):
                     # print(example)
                     writer.write(example.SerializeToString())
 
-@profile
-def generate_image_tf_records(number_files, out_dir):
+# @profile
+def generate_image_tf_records(number_files, 
+                              out_dir,
+                              NUM_SAMPLES_PER_FILE):
 
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
@@ -117,7 +124,8 @@ def generate_image_tf_records(number_files, out_dir):
 
 
 @profile
-def numpy_array_decode(serialized_example):
+def numpy_array_decode(serialized_example,
+                       NUM_FEATURES=250): #TTODO make it as arg
     # define a parser
     features = tf.io.parse_single_example(
         serialized_example,
@@ -159,7 +167,9 @@ def east_features_decode(serialized_example):
 
 
 @profile
-def _get_dataset(data_path):
+def _get_dataset(data_path,
+                 BATCH_SIZE,
+                 IS_EAST_IMAGE_TEST):
     """
     Reads TFRecords, decode and batches them
     :return: dataset
@@ -182,47 +192,51 @@ def _get_dataset(data_path):
     # dataset = dataset.shuffle(_batch_size*10, 42)
     # Map the generator output as features as a dict and label
 
-    if EAST_IMAGE_TEST:
+    if IS_EAST_IMAGE_TEST:
       dataset = dataset.map(map_func=east_features_decode, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     else:
       dataset = dataset.map(map_func=numpy_array_decode, num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
-    dataset = dataset.batch(batch_size=_batch_size, drop_remainder=False)
-    dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.batch(batch_size=_batch_size, drop_remainder=False).repeat()
+    # dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
     iterator = dataset.make_one_shot_iterator()
     batch_feats, batch_label = iterator.get_next()
     return batch_feats, batch_label
 
 
 @profile
-def dataset_to_iterator(data_path):
+def test_dataset(data_path,
+                 BATCH_SIZE,
+                 IS_EAST_IMAGE_TEST):
     """
     Reads the TFRecords and creates TF Datasets
     :param data_path:
     :return:
     """
     _num_cores = 4
-    _batch_size = 128
 
     path = os.path.join(data_path, "*.tfrecords")
     path = path.replace("//", "/")
     files = tf.data.Dataset.list_files(path)
-    # files = glob.glob(pathname=path)
-    # dataset = tf.data.TFRecordDataset(files, num_parallel_reads=_num_cores)
-
     # TF dataset APIs
     dataset = files.interleave(
         tf.data.TFRecordDataset,
         cycle_length=_num_cores,
         num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    dataset = dataset.shuffle(_batch_size*10, 42)
+    dataset = dataset.shuffle(BATCH_SIZE*10, 42)
     # Map the generator output as features as a dict and label
-    dataset = dataset.map(map_func=numpy_array_decode, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    dataset = dataset.batch(batch_size=_batch_size, drop_remainder=False)
-    dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
-    # Create an iterator
-    iterator = dataset.make_one_shot_iterator()
-    # Create your tf representation of the iterator
-    image, label = iterator.get_next()
+    if IS_EAST_IMAGE_TEST:
+        dataset = dataset.map(map_func=east_features_decode, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    else:
+        dataset = dataset.map(map_func=numpy_array_decode, num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
-    return image, label
+    dataset = dataset.batch(batch_size=BATCH_SIZE, drop_remainder=False)
+    dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+
+    for features, label in dataset:
+        try:
+            for key in features.keys():
+                print(".", sep="")#print(f"{features[key].shape}", sep= " ")
+        #print("\n")
+        except:
+            print(".", sep="") #hacky way

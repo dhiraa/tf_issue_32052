@@ -1,24 +1,26 @@
 import os
 
 #Disable this flag for a normal test run
-EAST_IMAGE_TEST = True
+from print_helper import print_info
 
-NUM_ARRAYS_PER_FILE = 100
-NUM_FEATURES = 250000
+IS_EAST_IMAGE_TEST = True
+
+NUM_ARRAYS_PER_FILE = 100000
+NUM_FEATURES = 250
 NUM_IMAGES_PER_FILE = 8
 
-if EAST_IMAGE_TEST:
+if IS_EAST_IMAGE_TEST:
   BATCH_SIZE = 4
-  TRAIN_DATA = out_dir = os.getcwd() + "/data/train_data_img"
-  VAL_DATA = out_dir = os.getcwd() + "/data/val_data_img"
+  TRAIN_DATA  = os.getcwd() + "/data/train_data_img"
+  VAL_DATA  = os.getcwd() + "/data/val_data_img"
   MODEL_DIR = os.getcwd() + "/data/" + "east_net"
   EXPORT_DIR = MODEL_DIR + "/" + "export"
   NUM_EPOCHS = 3
   NUM_SAMPLES_PER_FILE = NUM_IMAGES_PER_FILE
 else:
-  BATCH_SIZE = 64
-  TRAIN_DATA = out_dir = os.getcwd() + "/data/train_data"
-  VAL_DATA = out_dir = os.getcwd() + "/data/val_data"
+  BATCH_SIZE = 128
+  TRAIN_DATA  = os.getcwd() + "/data/train_data"
+  VAL_DATA  = os.getcwd() + "/data/val_data"
   MODEL_DIR = os.getcwd() + "/" + "data/fwd_nnet"
   EXPORT_DIR = MODEL_DIR + "/" + "export"
   NUM_EPOCHS = 25
