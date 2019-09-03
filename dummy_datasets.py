@@ -125,7 +125,7 @@ def generate_image_tf_records(number_files,
 
 @profile
 def numpy_array_decode(serialized_example,
-                       NUM_FEATURES=250): #TTODO make it as arg
+                       NUM_FEATURES=250): #TODO make it as arg
     # define a parser
     features = tf.io.parse_single_example(
         serialized_example,
@@ -141,7 +141,9 @@ def numpy_array_decode(serialized_example,
     label = tf.reshape(
         tf.cast(features['label'], tf.float32), shape=[1])
 
-    return {"data": data, "dummy": np.random.rand(512, 512, 5)}, label
+    # return {"data": data, "dummy": np.random.rand(512, 512, 5)}, label
+    return {"data": data}, label
+
 
 
 @profile
@@ -197,7 +199,7 @@ def _get_dataset(data_path,
     else:
       dataset = dataset.map(map_func=numpy_array_decode, num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
-    dataset = dataset.batch(batch_size=_batch_size, drop_remainder=False).repeat()
+    dataset = dataset.batch(batch_size=_batch_size, drop_remainder=False)
     # dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
     iterator = dataset.make_one_shot_iterator()
     batch_feats, batch_label = iterator.get_next()

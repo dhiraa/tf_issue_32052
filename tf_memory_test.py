@@ -118,8 +118,8 @@ def evaluate(estimator, VAL_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, steps=None, ch
 
 
 @profile
-def serving_input_receiver_fn(IS_EAST_IMAGE_TEST):
-    if IS_EAST_IMAGE_TEST:
+def serving_input_receiver_fn(IS_EAST_MODEL):
+    if IS_EAST_MODEL:
         inputs = {
             "images": tf.compat.v1.placeholder(tf.float32, [None, None, None, 3]),
         }
@@ -131,33 +131,34 @@ def serving_input_receiver_fn(IS_EAST_IMAGE_TEST):
 
 
 @profile
-def export_model(estimator, model_export_path):
+def export_model(estimator, model_export_path, IS_EAST_MODEL):
     logging.info("Saving model to =======> {}".format(model_export_path))
     if not os.path.exists(model_export_path):
         os.makedirs(model_export_path)
     estimator.export_saved_model(
         model_export_path,
-        serving_input_receiver_fn=serving_input_receiver_fn)
+        serving_input_receiver_fn=lambda : serving_input_receiver_fn(IS_EAST_MODEL=IS_EAST_MODEL))
 
 @profile
-def gen_data(IS_EAST_IMAGE_TEST,
+def gen_data(number_files,
+             IS_EAST_IMAGE_TEST,
              TRAIN_DATA,
              VAL_DATA,
              NUM_SAMPLES_PER_FILE,
              NUM_FEATURES=None):
     if IS_EAST_IMAGE_TEST:
-        generate_image_tf_records(number_files=5, #TODO Fixed?
+        generate_image_tf_records(number_files=number_files,
                                   out_dir=TRAIN_DATA,
                                   NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE)
-        generate_image_tf_records(number_files=2,
+        generate_image_tf_records(number_files=1, #TODO Fixed?
                                   out_dir=VAL_DATA,
                                   NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE)
     else:
-        generate_numpy_tf_records(number_files=10, #TODO fixed?
+        generate_numpy_tf_records(number_files=number_files,
                                   out_dir=TRAIN_DATA,
                                   NUM_FEATURES=NUM_FEATURES,
                                   NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE)
-        generate_numpy_tf_records(number_files=3,
+        generate_numpy_tf_records(number_files=2, #TODO fixed?
                                   out_dir=VAL_DATA,
                                   NUM_FEATURES=NUM_FEATURES,
                                   NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE)
@@ -195,7 +196,7 @@ def main(args):
         VAL_DATA = os.getcwd() + "/data/val_data"
         MODEL_DIR = os.getcwd() + "/" + "data/fwd_nnet"
         EXPORT_DIR = MODEL_DIR + "/" + "export"
-        NUM_EPOCHS = 25
+        NUM_EPOCHS = 5
         NUM_SAMPLES_PER_FILE = NUM_ARRAYS_PER_FILE
     elif args["dataset"] == "east":
         pass
@@ -204,17 +205,32 @@ def main(args):
 
     TOTAL_STEPS_PER_FILE = NUM_SAMPLES_PER_FILE / BATCH_SIZE
 
+    if args["delete"] == True:
+        print_info("Deleting old data files")
+        shutil.rmtree(TRAIN_DATA)
+        shutil.rmtree(VAL_DATA)
+
     gen_data(IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST,
              TRAIN_DATA=TRAIN_DATA,
              VAL_DATA=VAL_DATA,
              NUM_SAMPLES_PER_FILE=NUM_SAMPLES_PER_FILE,
-             NUM_FEATURES=NUM_FEATURES)
+             NUM_FEATURES=NUM_FEATURES,
+             number_files=int(args["num_tfrecord_files"]))
 
-    if args["mode"] == "test_east_iterator":
+    if args["mode"] == "test_iterator":
+        print('objgraph growth list start')
+        objgraph.show_growth(limit=50)
+        print('objgraph growth list end')
+
+
         test_dataset(data_path=TRAIN_DATA,
                      BATCH_SIZE=BATCH_SIZE,
                      IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
         # test_dataset(VAL_DATA)
+        print('objgraph growth list start')
+        objgraph.show_growth(limit=50)
+        print('objgraph growth list end')
+
         return
 
     # print(dataset_to_iterator(data_path=TRAIN_DATA))
@@ -228,8 +244,10 @@ def main(args):
                                        config=_init_tf_config(TOTAL_STEPS_PER_FILE=TOTAL_STEPS_PER_FILE,
                                                               MODEL_DIR=MODEL_DIR), params=None)
     memory_usage_psutil()
-    print('objgraph growth list')
+    print('objgraph growth list start')
     objgraph.show_growth(limit=50)
+    print('objgraph growth list end')
+
     # print(objgraph.get_leaking_objects())
 
     for epoch in tqdm(range(NUM_EPOCHS)):
@@ -248,18 +266,20 @@ def main(args):
                  VAL_DATA=VAL_DATA,
                  BATCH_SIZE=BATCH_SIZE,
                  IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
-        print('objgraph growth list after iteration {}'.format(epoch))
+        print('objgraph growth list start')
         objgraph.show_growth(limit=50)
+        print('objgraph growth list end')
+
 
     plt.plot(memory_used)
     plt.title('Evolution of memory')
     plt.xlabel('iteration')
     plt.ylabel('memory used (MB)')
-    plt.savefig("memory_usage.png")
+    plt.savefig("logs/" + args["dataset"] + "_dataset_memory_usage.png")
     plt.show()
 
     print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> New Epoch")
-    export_model(estimator=estimator, model_export_path=EXPORT_DIR)
+    export_model(estimator=estimator, model_export_path=EXPORT_DIR, IS_EAST_MODEL=IS_EAST_IMAGE_TEST)
 
     (objgraph.get_leaking_objects())
 
@@ -267,8 +287,11 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Testing TF Dataset Memory usage : ')
 
-    parser.add_argument('-m', "--mode", default="", help="[test_east_iterator]")
+    parser.add_argument('-d', "--delete", type=bool, default=False, help="Delete old data files")
+    parser.add_argument('-m', "--mode", default="", help="[test_iterator]")
     parser.add_argument('-ds', "--dataset", default="east", help="[east/numpy]")
+    parser.add_argument('-nf', "--num_tfrecord_files", default=5, help="number of train tfrecord files to generate")
+
 
     parsed_args = vars(parser.parse_args())
 

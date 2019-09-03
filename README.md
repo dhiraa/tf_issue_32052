@@ -20,35 +20,57 @@ Functions to look for:
 
 All UPPERCASE VARIABLES are configurations in [tf_memory_test.py](tf_memory_test.py)
 
+**Numpy TFRecords**
+
+```python
+NUM_ARRAYS_PER_FILE = 10000
+NUM_FEATURES = 250
+```
+
+Size = 10000 * 1 * 250 = 2500000 ~ 20MB ~ 10MB on disk
+
+**EAST Dummy Image TFRecords**
+
+```python
+                ...
+                image_mat = np.random.rand(512, 512, 3)
+                score_map_mat = np.random.rand(128, 128, 1)
+                geo_map_mat = np.random.rand(128, 128, 5)
+                ...
+                
+NUM_IMAGES_PER_FILE = 8
+```
+
+(((512 * 512 * 3) + (128 * 128 * 1) + (128 * 128 * 5) ) * 8) * 8 / 1024 / 1024 = 54MB ~ 28MB on disk
 
 ### How to run ?
 
 ```
-python tf_memory_test.py --mode=test_east_iterator --dataset=east |&  tee east_itr_log.txt
-python tf_memory_test.py --mode=test_east_iterator --dataset=numpy |&  tee numpy_itr_log.txt
+python tf_memory_test.py --delete=true  --num_tfrecord_files=3 --mode=test_iterator --dataset=east |&  tee logs/east_itr_log.txt
+python tf_memory_test.py --delete=true  --num_tfrecord_files=6  --mode=test_iterator --dataset=numpy |&  tee logs/numpy_itr_log.txt
 
 ```
 - Dataset APIs consumes memory by loading the TFRecord files
 
 ```
-python tf_memory_test.py --dataset=numpy |&  tee simpe_net_log.txt
+python tf_memory_test.py --dataset=numpy |&  tee logs/simpe_net_log.txt
 ```
 
 -  When `mode` arg is set to `simple_net`, which uses simple FeedForward net and loss, there is no much difference between 
 the epochs and the memory usage is in sub-linear increase. #TODO retest this!
 
 ```
-python tf_memory_test.py --dataset=east |&  tee east_log.txt
+python tf_memory_test.py --delete=true  --num_tfrecord_files=3 --dataset=east |&  tee logs/east_model_log.txt
 ```
 
 - However with EAST Model, which uses different way of optimization routines 
 the memory usage spikes with each epoch.
 
 
-#### TODO
-```python parse_objgraph_log.py # works well only when objgraph outputs 50 items :(
-xdg-open objgraph_tf_dataset_analysis.csv #each column says how many new objects were added
+#### Objgraph information parser
 
+```python parse_objgraph_log.py 
+python parse_objgraph_log.py -f=east_itr_log.txt
 cat log.txt #for pretty colorful prints
 ```
 
