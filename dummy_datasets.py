@@ -141,8 +141,8 @@ def numpy_array_decode(serialized_example,
     label = tf.reshape(
         tf.cast(features['label'], tf.float32), shape=[1])
 
-    # return {"data": data, "dummy": np.random.rand(512, 512, 5)}, label
-    return {"data": data}, label
+    return {"data": data, "dummy": np.random.rand(512, 512, 5)}, label
+    # return {"data": data}, label
 
 
 
@@ -235,10 +235,15 @@ def test_dataset(data_path,
     dataset = dataset.batch(batch_size=BATCH_SIZE, drop_remainder=False)
     dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
+    i = 0
     for features, label in dataset:
+        print(f"Batch {i}", sep="")
         try:
             for key in features.keys():
-                print(".", sep="")#print(f"{features[key].shape}", sep= " ")
+                # print(".", sep="")#print(f"{features[key].shape}", sep= " ")
+                pass
         #print("\n")
         except:
-            print(".", sep="") #hacky way
+            pass#print(f"Batch {i}", sep="") #hacky way
+
+        i = i + 1

@@ -226,7 +226,12 @@ def main(args):
         test_dataset(data_path=TRAIN_DATA,
                      BATCH_SIZE=BATCH_SIZE,
                      IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
-        # test_dataset(VAL_DATA)
+        test_dataset(data_path=TRAIN_DATA,
+                     BATCH_SIZE=BATCH_SIZE,
+                     IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
+        test_dataset(data_path=VAL_DATA,
+                     BATCH_SIZE=BATCH_SIZE,
+                     IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
         print('objgraph growth list start')
         objgraph.show_growth(limit=50)
         print('objgraph growth list end')
