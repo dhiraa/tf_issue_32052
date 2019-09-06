@@ -200,6 +200,8 @@ def _get_dataset(data_path,
       dataset = dataset.map(map_func=numpy_array_decode, num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
     dataset = dataset.batch(batch_size=_batch_size, drop_remainder=False)
+    dataset = dataset.repeat()
+
     # dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
     iterator = dataset.make_one_shot_iterator()
     batch_feats, batch_label = iterator.get_next()

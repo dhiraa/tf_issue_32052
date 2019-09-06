@@ -3,5 +3,4 @@ matplotlib
 absl
 tqdm
 numpy
-tracemalloc
 memory-profiler

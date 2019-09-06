@@ -37,6 +37,20 @@ import tracemalloc
 4. Run Estimator with dataset
 5. Collect memory stats
 """
+def get_tf_records_count(files):
+    total_records = 0
+    for file in tqdm(files, desc="tfrecords size: "):
+        total_records += sum(1 for _ in tf.data.TFRecordDataset(file))
+    return total_records
+
+def get_tf_records_count_v1(path):
+    path = os.path.join(path, "*.tfrecords").replace("//", "/")
+    files = glob.glob(path)
+    total_records = -1
+    for file in tqdm(files, desc="tfrecords size: "):
+        # total_records += sum(1 for _ in tf.python_io.tf_record_iterator(file))
+        total_records += sum(1 for _ in tf.data.TFRecordDataset(file))
+    return total_records
 
 @profile
 def _init_tf_config(TOTAL_STEPS_PER_FILE,
@@ -72,9 +86,15 @@ def _init_tf_config(TOTAL_STEPS_PER_FILE,
 
 
 @profile
-def _get_train_spec(TRAIN_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, max_steps=None):
+def _get_train_spec(TRAIN_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, NUM_EPOCHS=None, max_steps=None):
     # Estimators expect an input_fn to take no arguments.
     # To work around this restriction, we use lambda to capture the arguments and provide the expected interface.
+    _total_num_samples = get_tf_records_count_v1(TRAIN_DATA)
+    STEPS_PER_EPOCH = _total_num_samples // BATCH_SIZE
+
+    if max_steps is None:
+        max_steps = STEPS_PER_EPOCH * NUM_EPOCHS
+
     return tf.estimator.TrainSpec(
         input_fn=lambda: _get_dataset(data_path=TRAIN_DATA,
                                       BATCH_SIZE=BATCH_SIZE,
@@ -85,6 +105,13 @@ def _get_train_spec(TRAIN_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, max_steps=None):
 
 @profile
 def _get_eval_spec(VAL_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, steps):
+
+    _total_num_samples = get_tf_records_count_v1(VAL_DATA)
+    STEPS_PER_EPOCH = _total_num_samples // BATCH_SIZE
+
+    if steps is None:
+        steps = STEPS_PER_EPOCH
+
     return tf.estimator.EvalSpec(
         input_fn=lambda: _get_dataset(data_path=VAL_DATA,
                                       BATCH_SIZE=BATCH_SIZE,
@@ -94,11 +121,12 @@ def _get_eval_spec(VAL_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, steps):
 
 
 @profile
-def train(estimator, TRAIN_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, max_steps=None):
+def train(estimator, TRAIN_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, max_steps=None, NUM_EPOCHS=None):
     train_spec = _get_train_spec(TRAIN_DATA=TRAIN_DATA,
                                  max_steps=max_steps,
                                  BATCH_SIZE=BATCH_SIZE,
-                                 IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
+                                 IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST,
+                                 NUM_EPOCHS=NUM_EPOCHS)
     estimator.train(
         input_fn=train_spec.input_fn,
         hooks=train_spec.hooks,
@@ -107,7 +135,8 @@ def train(estimator, TRAIN_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, max_steps=None)
 
 @profile
 def evaluate(estimator, VAL_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, steps=None, checkpoint_path=None):
-    eval_spec = _get_eval_spec(VAL_DATA=VAL_DATA, steps=steps,
+    eval_spec = _get_eval_spec(VAL_DATA=VAL_DATA,
+                               steps=steps,
                                BATCH_SIZE=BATCH_SIZE,
                                IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
     estimator.evaluate(
@@ -115,6 +144,21 @@ def evaluate(estimator, VAL_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, steps=None, ch
         steps=eval_spec.steps,
         hooks=eval_spec.hooks,
         checkpoint_path=checkpoint_path)
+
+
+@profile
+def train_n_evaluate(estimator, TRAIN_DATA, VAL_DATA, BATCH_SIZE, IS_EAST_IMAGE_TEST, max_steps=None, NUM_EPOCHS=None):
+    train_spec = _get_train_spec(TRAIN_DATA=TRAIN_DATA,
+                                 max_steps=max_steps,
+                                 BATCH_SIZE=BATCH_SIZE,
+                                 IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST,
+                                 NUM_EPOCHS=NUM_EPOCHS)
+    eval_spec = _get_eval_spec(VAL_DATA=VAL_DATA,
+                               steps=200,
+                               BATCH_SIZE=BATCH_SIZE,
+                               IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
+
+    tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
 
 
 @profile
@@ -196,7 +240,7 @@ def main(args):
         VAL_DATA = os.getcwd() + "/data/val_data"
         MODEL_DIR = os.getcwd() + "/" + "data/fwd_nnet"
         EXPORT_DIR = MODEL_DIR + "/" + "export"
-        NUM_EPOCHS = 5
+        NUM_EPOCHS = 3
         NUM_SAMPLES_PER_FILE = NUM_ARRAYS_PER_FILE
     elif args["dataset"] == "east":
         pass
@@ -255,33 +299,42 @@ def main(args):
 
     # print(objgraph.get_leaking_objects())
 
-    for epoch in tqdm(range(NUM_EPOCHS)):
+    # for epoch in tqdm(range(NUM_EPOCHS)):
 
-        print("\n\n\n\n\n\n")
-        print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> New Epoch")
-        memory_usage_psutil()
-        memory_used.append(process.memory_info()[0] / float(2 ** 20))
-        print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training")
-        train(estimator=estimator,
-              TRAIN_DATA=TRAIN_DATA,
-              BATCH_SIZE=BATCH_SIZE,
-              IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
-        print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Evaluating")
-        evaluate(estimator=estimator,
-                 VAL_DATA=VAL_DATA,
-                 BATCH_SIZE=BATCH_SIZE,
-                 IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
-        print('objgraph growth list start')
-        objgraph.show_growth(limit=50)
-        print('objgraph growth list end')
+    print("\n\n\n\n\n\n")
+    print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> New Epoch")
+    memory_usage_psutil()
+    # memory_used.append(process.memory_info()[0] / float(2 ** 20))
+    print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training")
+    # train(estimator=estimator,
+    #       TRAIN_DATA=TRAIN_DATA,
+    #       BATCH_SIZE=BATCH_SIZE,
+    #       IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
+    # print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Evaluating")
+    # evaluate(estimator=estimator,
+    #          VAL_DATA=VAL_DATA,
+    #          BATCH_SIZE=BATCH_SIZE,
+    #          IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST)
 
+    train_n_evaluate(estimator=estimator,
+                     TRAIN_DATA=TRAIN_DATA,
+                     VAL_DATA=VAL_DATA,
+                     BATCH_SIZE=BATCH_SIZE,
+                     IS_EAST_IMAGE_TEST=IS_EAST_IMAGE_TEST,
+                     max_steps=None,
+                     NUM_EPOCHS=NUM_EPOCHS)
 
-    plt.plot(memory_used)
-    plt.title('Evolution of memory')
-    plt.xlabel('iteration')
-    plt.ylabel('memory used (MB)')
-    plt.savefig("logs/" + args["dataset"] + "_dataset_memory_usage.png")
-    plt.show()
+    print('objgraph growth list start')
+    objgraph.show_growth(limit=50)
+    print('objgraph growth list end')
+    memory_usage_psutil()
+
+    # plt.plot(memory_used)
+    # plt.title('Evolution of memory')
+    # plt.xlabel('iteration')
+    # plt.ylabel('memory used (MB)')
+    # plt.savefig("logs/" + args["dataset"] + "_dataset_memory_usage.png")
+    # plt.show()
 
     print_error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> New Epoch")
     export_model(estimator=estimator, model_export_path=EXPORT_DIR, IS_EAST_MODEL=IS_EAST_IMAGE_TEST)

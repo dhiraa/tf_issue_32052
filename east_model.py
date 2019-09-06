@@ -522,18 +522,16 @@ class EASTTFModel():
 
             # add summary
             # logging.info(input_images)
-            # loss = tf.reduce_mean(model_loss)
 
             print_error(loss)
 
-            # tf.compat.v1.summary.image('input', input_images)
-            # tf.compat.v1.summary.image('score_map', input_score_maps)
-            # tf.compat.v1.summary.image('score_map_pred', f_score * 255)
-            # tf.compat.v1.summary.image('geo_map_0', input_geo_maps[:, :, :, 0:1])
-            # tf.compat.v1.summary.image('geo_map_0_pred', f_geometry[:, :, :, 0:1])
-            # # tf.compat.v1.summary.image('training_masks', input_training_masks)
-            # # tf.summary.scalar('model_loss', model_loss)
-            # tf.summary.scalar('total_loss', loss)
+            tf.compat.v1.summary.image('input', input_images)
+            tf.compat.v1.summary.image('score_map', input_score_maps)
+            tf.compat.v1.summary.image('score_map_pred', f_score * 255)
+            tf.compat.v1.summary.image('geo_map_0', input_geo_maps[:, :, :, 0:1])
+            tf.compat.v1.summary.image('geo_map_0_pred', f_geometry[:, :, :, 0:1])
+            tf.summary.scalar('model_loss', model_loss)
+            tf.summary.scalar('total_loss', loss)
 
             optimizer = self._get_optimizer(loss=loss)
 
