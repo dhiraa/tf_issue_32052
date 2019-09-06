@@ -27,7 +27,7 @@ NUM_ARRAYS_PER_FILE = 10000
 NUM_FEATURES = 250
 ```
 
-Size = 10000 * 1 * 250 = 2500000 ~ 20MB ~ 10MB on disk
+Size = 10000 * 1 * 250 = 2500000 * 8bytes / 1024 / 1024 ~ 20MB ~ 10MB on disk
 
 **EAST Dummy Image TFRecords**
 
@@ -41,7 +41,7 @@ Size = 10000 * 1 * 250 = 2500000 ~ 20MB ~ 10MB on disk
 NUM_IMAGES_PER_FILE = 8
 ```
 
-(((512 * 512 * 3) + (128 * 128 * 1) + (128 * 128 * 5) ) * 8) * 8 / 1024 / 1024 = 54MB ~ 28MB on disk
+(((512 * 512 * 3) + (128 * 128 * 1) + (128 * 128 * 5) ) * 8 bytes) * 8 files / 1024 / 1024 = 54MB ~ 28MB on disk
 
 ### How to run ?
 
