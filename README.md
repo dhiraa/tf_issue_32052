@@ -3,14 +3,6 @@
 
 Code to reproduce the Tensorflow issue @ https://github.com/tensorflow/tensorflow/issues/32052
 
-`mode` arg is used to switch between random numpy dataset and image dataset.
-
-Same arg is used to switch between a simple FeedForward regression network and EAST model, 
-adopted from https://github.com/argman/EAST
-
-Note: The code in `east_model.py` is still under porting and testing phase from TF 1.x version.
- It may also have something to do with this memory increase.
-
 Functions to look for:
 - [generate_image_tf_records](dummy_datasets.py)
 - [ east_features_decode](dummy_datasets.py)
@@ -45,6 +37,15 @@ NUM_IMAGES_PER_FILE = 8
 
 ### How to run ?
 
+`dataset` arg is used to switch between random numpy dataset and image dataset.
+
+Same arg is used to switch between a simple FeedForward regression network and EAST model, 
+adopted from https://github.com/argman/EAST
+
+Note: The code in `east_model.py` is still under porting and testing phase from TF 1.x version.
+ It may also have something to do with this memory increase.
+ 
+ 
 **Test Iterator**
 
 ```
