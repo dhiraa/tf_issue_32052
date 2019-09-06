@@ -45,6 +45,8 @@ NUM_IMAGES_PER_FILE = 8
 
 ### How to run ?
 
+**Test Iterator**
+
 ```
 python tf_memory_test.py --delete=true  --num_tfrecord_files=3 --mode=test_iterator --dataset=east |&  tee logs/east_itr_log.txt
 python tf_memory_test.py --delete=true  --num_tfrecord_files=6  --mode=test_iterator --dataset=numpy |&  tee logs/numpy_itr_log.txt
@@ -52,19 +54,12 @@ python tf_memory_test.py --delete=true  --num_tfrecord_files=6  --mode=test_iter
 ```
 - Dataset APIs consumes memory by loading the TFRecord files
 
+
+**Test Estimators**
 ```
 python tf_memory_test.py --dataset=numpy |&  tee logs/simpe_net_log.txt
-```
-
--  When `mode` arg is set to `simple_net`, which uses simple FeedForward net and loss, there is no much difference between 
-the epochs and the memory usage is in sub-linear increase. #TODO retest this!
-
-```
 python tf_memory_test.py --delete=true  --num_tfrecord_files=3 --dataset=east |&  tee logs/east_model_log.txt
 ```
-
-- However with EAST Model, which uses different way of optimization routines 
-the memory usage spikes with each epoch.
 
 
 #### Objgraph information parser
