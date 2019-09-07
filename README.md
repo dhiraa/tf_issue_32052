@@ -18,6 +18,8 @@ python test_memory_leak.py \
 --train_path=data/train_data/ \
 --val_path=data/val_data/ \
 --model_dir=data/model/ \
---model_export_path=data/model/exported/
+--model_export_path=data/model/exported/ |& tee log.txt
 ```
+
+##### [Update 07/09/2019] : Old branch https://github.com/dhiraa/tf_issue_32052/tree/master
 

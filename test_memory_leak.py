@@ -8,6 +8,7 @@ import tensorflow as tf
 from tqdm import tqdm
 from sklearn.datasets import make_regression
 import time
+from memory_profiler import profile
 
 logging.set_verbosity(logging.INFO)
 
@@ -110,6 +111,7 @@ def get_numpy_array_size(arr):
     print_info("%d MBytes " % size)
     return size
 
+@profile
 def generate_numpy_tf_records(out_dir,
                               num_tfrecord_files=5,
                               num_samples_per_file=100000,
@@ -147,6 +149,7 @@ def generate_numpy_tf_records(out_dir,
                     # print(example)
                     writer.write(example.SerializeToString())
 
+@profile
 def numpy_array_decode(serialized_example,
                        num_features=250):
     # define a parser
@@ -167,7 +170,7 @@ def numpy_array_decode(serialized_example,
     return {"data": data, "dummy": np.random.rand(512, 512, 5)}, label
     # return {"data": data}, label
 
-
+@profile
 def _get_dataset(data_path,
                  batch_size,
                  num_features):
@@ -204,6 +207,7 @@ def _get_dataset(data_path,
     # return batch_feats, batch_label
     return dataset
 
+@profile
 def get_tf_records_count(path):
     path = os.path.join(path, "*.tfrecords").replace("//", "/")
     files = glob.glob(path)
@@ -215,6 +219,7 @@ def get_tf_records_count(path):
 
 # -----------------------------------------------------------------------------------------------------------------------
 
+@profile
 class NNet():
     def __init__(self):
         pass
@@ -293,7 +298,7 @@ class NNet():
 
 # -----------------------------------------------------------------------------------------------------------------------
 # Estimator Specs
-
+@profile
 def _init_tf_config(total_steps_per_file,
                     model_dir,
                     clear_model_data=False,
@@ -325,7 +330,7 @@ def _init_tf_config(total_steps_per_file,
 
     return _run_config
 
-
+@profile
 def _get_train_spec(train_data_path, batch_size, num_features, num_epochs=None, max_steps=None):
     # Estimators expect an input_fn to take no arguments.
     # To work around this restriction, we use lambda to capture the arguments and provide the expected interface.
@@ -342,23 +347,24 @@ def _get_train_spec(train_data_path, batch_size, num_features, num_epochs=None, 
         max_steps=max_steps,
         hooks=None)
 
-
+@profile
 def _get_eval_spec(val_data_path, batch_size, num_features, num_epochs=None, max_steps=None):
 
     _total_num_samples = get_tf_records_count(val_data_path)
     STEPS_PER_EPOCH = _total_num_samples // batch_size
 
     if max_steps is None:
-        steps = STEPS_PER_EPOCH
+        max_steps = STEPS_PER_EPOCH
 
     return tf.estimator.EvalSpec(
         input_fn=lambda: _get_dataset(data_path=val_data_path,
                                       batch_size=batch_size,
                                       num_features=num_features),
-        steps=steps,
+        steps=max_steps,
         hooks=None)
 
 
+@profile
 def train_n_evaluate(estimator,
                      train_data_path,
                      val_data_path,
@@ -398,7 +404,7 @@ def export_model(estimator, num_features, model_export_path):
 
 # -----------------------------------------------------------------------------------------------------------------------
 
-
+@profile
 def main(args):
     memory_usage_psutil("1. Before generating data")
 
@@ -437,7 +443,7 @@ def main(args):
                      num_features=args["num_features"],
                      num_epochs=args["num_epochs"],
                      max_train_steps=None,
-                     max_val_steps=200)
+                     max_val_steps=None)
 
     memory_usage_psutil("5. Before exporitng the model")
 
