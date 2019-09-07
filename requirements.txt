@@ -4,3 +4,4 @@ absl
 tqdm
 numpy
 memory-profiler
+scikit-learn

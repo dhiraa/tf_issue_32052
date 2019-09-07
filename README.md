@@ -3,74 +3,21 @@
 
 Code to reproduce the Tensorflow issue @ https://github.com/tensorflow/tensorflow/issues/32052
 
-`mode` arg is used to switch between random numpy dataset and image dataset.
-
-Same arg is used to switch between a simple FeedForward regression network and EAST model, 
-adopted from https://github.com/argman/EAST
-
-Note: The code in `east_model.py` is still under porting and testing phase from TF 1.x version.
- It may also have something to do with this memory increase.
-
-Functions to look for:
-- [generate_image_tf_records](dummy_datasets.py)
-- [ east_features_decode](dummy_datasets.py)
-- [_get_dataset](dummy_datasets.py)
-
-### Configurations
-
-All UPPERCASE VARIABLES are configurations in [tf_memory_test.py](tf_memory_test.py)
-
-**Numpy TFRecords**
-
-```python
-NUM_ARRAYS_PER_FILE = 10000
-NUM_FEATURES = 250
-```
-
-Size = 10000 * 1 * 250 = 2500000 ~ 20MB ~ 10MB on disk
-
-**EAST Dummy Image TFRecords**
-
-```python
-                ...
-                image_mat = np.random.rand(512, 512, 3)
-                score_map_mat = np.random.rand(128, 128, 1)
-                geo_map_mat = np.random.rand(128, 128, 5)
-                ...
-                
-NUM_IMAGES_PER_FILE = 8
-```
-
-(((512 * 512 * 3) + (128 * 128 * 1) + (128 * 128 * 5) ) * 8) * 8 / 1024 / 1024 = 54MB ~ 28MB on disk
 
 ### How to run ?
 
 ```
-python tf_memory_test.py --delete=true  --num_tfrecord_files=3 --mode=test_iterator --dataset=east |&  tee logs/east_itr_log.txt
-python tf_memory_test.py --delete=true  --num_tfrecord_files=6  --mode=test_iterator --dataset=numpy |&  tee logs/numpy_itr_log.txt
-
-```
-- Dataset APIs consumes memory by loading the TFRecord files
-
-```
-python tf_memory_test.py --dataset=numpy |&  tee logs/simpe_net_log.txt
-```
-
--  When `mode` arg is set to `simple_net`, which uses simple FeedForward net and loss, there is no much difference between 
-the epochs and the memory usage is in sub-linear increase. #TODO retest this!
-
-```
-python tf_memory_test.py --delete=true  --num_tfrecord_files=3 --dataset=east |&  tee logs/east_model_log.txt
-```
-
-- However with EAST Model, which uses different way of optimization routines 
-the memory usage spikes with each epoch.
-
-
-#### Objgraph information parser
-
-```python parse_objgraph_log.py 
-python parse_objgraph_log.py -f=east_itr_log.txt
-cat log.txt #for pretty colorful prints
+python test_memory_leak.py \
+--delete=true \
+--num_tfrecord_train_files=5 \
+--num_tfrecord_val_files=1 \
+--num_samples_per_file=10000 \
+--num_features=250 \
+--num_epochs=5 \
+--batch_size=128 \
+--train_path=data/train_data/ \
+--val_path=data/val_data/ \
+--model_dir=data/model/ \
+--model_export_path=data/model/exported/
 ```
 

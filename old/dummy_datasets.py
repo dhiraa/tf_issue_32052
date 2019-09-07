@@ -203,10 +203,10 @@ def _get_dataset(data_path,
     dataset = dataset.repeat()
 
     # dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
-    iterator = dataset.make_one_shot_iterator()
-    batch_feats, batch_label = iterator.get_next()
-    return batch_feats, batch_label
-
+    # iterator = dataset.make_one_shot_iterator()
+    # batch_feats, batch_label = iterator.get_next()
+    # return batch_feats, batch_label
+    return dataset
 
 @profile
 def test_dataset(data_path,
