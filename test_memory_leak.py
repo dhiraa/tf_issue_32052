@@ -10,6 +10,7 @@ from sklearn.datasets import make_regression
 import time
 from memory_profiler import profile
 
+
 logging.set_verbosity(logging.INFO)
 
 
@@ -127,10 +128,10 @@ def generate_numpy_tf_records(out_dir,
 
     for i in tqdm(range(num_tfrecord_files)):
         file_path_name = os.path.join(out_dir, str(i) + ".tfrecords") # ~ 106MB
-        print(f"Writing to {file_path_name}")
         if os.path.exists(file_path_name):
             print(f"Found : {file_path_name}")
         else:
+            print(f"Writing to {file_path_name}")
             # generate regression dataset
             X, Y = make_regression(n_samples=num_samples_per_file, n_features=num_features, noise=0.1)
 
@@ -173,7 +174,8 @@ def numpy_array_decode(serialized_example,
 @profile
 def _get_dataset(data_path,
                  batch_size,
-                 num_features):
+                 num_features,
+                 num_epochs=1):
     """
     Reads TFRecords, decode and batches them
     :return: dataset
@@ -199,7 +201,7 @@ def _get_dataset(data_path,
                                                                                   num_features=num_features),
                           num_parallel_calls=tf.data.experimental.AUTOTUNE)
     dataset = dataset.batch(batch_size=batch_size, drop_remainder=False)
-    dataset = dataset.repeat()
+    dataset = dataset.repeat(num_epochs)
 
     # dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
     # iterator = dataset.make_one_shot_iterator()
@@ -214,7 +216,14 @@ def get_tf_records_count(path):
     total_records = -1
     for file in tqdm(files, desc="tfrecords size: "):
         # total_records += sum(1 for _ in tf.python_io.tf_record_iterator(file))
+        # sum = 0
+        # print(file)
+        # for i in tqdm(tf.data.TFRecordDataset(file)):
+        #     print(file, i)
+        #     sum += 1
         total_records += sum(1 for _ in tf.data.TFRecordDataset(file))
+        # total_records += sum
+
     return total_records
 
 # -----------------------------------------------------------------------------------------------------------------------
@@ -262,7 +271,7 @@ class NNet():
             return train_op
 
     def _build(self, features, label, params, mode, config=None):
-        memory_usage_psutil("Defining model...")
+        memory_usage_psutil("Defining model... {}".format(mode))
 
         features = features['data']
 
@@ -348,7 +357,7 @@ def _get_train_spec(train_data_path, batch_size, num_features, num_epochs=None, 
         hooks=None)
 
 @profile
-def _get_eval_spec(val_data_path, batch_size, num_features, num_epochs=None, max_steps=None):
+def _get_eval_spec(val_data_path, batch_size, num_features, max_steps=None):
 
     _total_num_samples = get_tf_records_count(val_data_path)
     STEPS_PER_EPOCH = _total_num_samples // batch_size
@@ -381,7 +390,6 @@ def train_n_evaluate(estimator,
     eval_spec = _get_eval_spec(val_data_path=val_data_path,
                                batch_size=batch_size,
                                num_features=num_features,
-                               num_epochs=num_epochs,
                                max_steps=max_val_steps)
 
     tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
@@ -406,6 +414,7 @@ def export_model(estimator, num_features, model_export_path):
 
 @profile
 def main(args):
+    print(args)
     memory_usage_psutil("1. Before generating data")
 
     #  1. Generate regression data
@@ -414,7 +423,7 @@ def main(args):
                               num_samples_per_file=args["num_samples_per_file"],
                               num_features=args["num_features"])
     generate_numpy_tf_records(out_dir=args["val_path"],
-                              num_tfrecord_files=2,
+                              num_tfrecord_files=args["num_tfrecord_val_files"],
                               num_samples_per_file=args["num_samples_per_file"],
                               num_features=args["num_features"])
 
@@ -450,11 +459,21 @@ def main(args):
     export_model(estimator=estimator, model_export_path=args["model_export_path"], num_features=args["num_features"])
 
 
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 # generate dataset
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Testing TF Dataset Memory usage : ')
 
-    parser.add_argument('-d', "--delete", type=bool, default=False, help="Delete old data files")
+    parser.add_argument('-d', "--delete", type=str2bool, default=False, help="Delete old data files")
     # parser.add_argument('-m', "--mode", default="", help="[test_iterator]")
     parser.add_argument('-ntf', "--num_tfrecord_train_files", default=5, type=int, help="number of train tfrecord files to generate")
     parser.add_argument('-ntfv', "--num_tfrecord_val_files", default=1,  type=int, help="number of val tfrecord files to generate")
@@ -471,6 +490,7 @@ if __name__ == '__main__':
 
     if parsed_args["delete"]:
         if os.path.exists("data/"):
+            print("Deleting old data")
             shutil.rmtree("data/")
 
     start_time = time.time()
