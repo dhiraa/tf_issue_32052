@@ -201,7 +201,7 @@ def _get_dataset(data_path,
                                                                                   num_features=num_features),
                           num_parallel_calls=tf.data.experimental.AUTOTUNE)
     dataset = dataset.batch(batch_size=batch_size, drop_remainder=False)
-    dataset = dataset.repeat(num_epochs)
+    # dataset = dataset.repeat(num_epochs)
 
     # dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
     # iterator = dataset.make_one_shot_iterator()
@@ -271,7 +271,7 @@ class NNet():
             return train_op
 
     def _build(self, features, label, params, mode, config=None):
-        memory_usage_psutil("Defining model... {}".format(mode))
+        memory_usage_psutil("Defining model... Mode: {}".format(mode))
 
         features = features['data']
 
@@ -381,19 +381,41 @@ def train_n_evaluate(estimator,
                      num_features,
                      num_epochs=None,
                      max_train_steps=None,
-                     max_val_steps=None):
-    train_spec = _get_train_spec(train_data_path=train_data_path,
-                                 batch_size=batch_size,
-                                 num_features=num_features,
-                                 num_epochs=num_epochs,
-                                 max_steps=max_train_steps)
-    eval_spec = _get_eval_spec(val_data_path=val_data_path,
-                               batch_size=batch_size,
-                               num_features=num_features,
-                               max_steps=max_val_steps)
+                     max_val_steps=None,
+                     use_estimator_train_n_eval=False):
 
-    tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
+    if use_estimator_train_n_eval: # TODO Test tf.estimator.train_and_evaluate, by pushing the num_epcohs to specs
+        train_spec = _get_train_spec(train_data_path=train_data_path,
+                                     batch_size=batch_size,
+                                     num_features=num_features,
+                                     num_epochs=num_epochs,
+                                     max_steps=max_train_steps)
+        eval_spec = _get_eval_spec(val_data_path=val_data_path,
+                                   batch_size=batch_size,
+                                   num_features=num_features,
+                                   max_steps=max_val_steps)
 
+        tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
+    else:
+        for epoch in range(1, num_epochs+1):
+            train_spec = _get_train_spec(train_data_path=train_data_path,
+                                         batch_size=batch_size,
+                                         num_features=num_features,
+                                         num_epochs=epoch,
+                                         max_steps=max_train_steps)
+            eval_spec = _get_eval_spec(val_data_path=val_data_path,
+                                       batch_size=batch_size,
+                                       num_features=num_features,
+                                       max_steps=max_val_steps)
+            estimator.train(
+                input_fn=train_spec.input_fn,
+                hooks=train_spec.hooks,
+                max_steps=train_spec.max_steps)
+            estimator.evaluate(
+                input_fn=eval_spec.input_fn,
+                steps=eval_spec.steps,
+                hooks=eval_spec.hooks,
+                checkpoint_path=None)
 
 def serving_input_receiver_fn(num_features):
     inputs = {
@@ -452,7 +474,8 @@ def main(args):
                      num_features=args["num_features"],
                      num_epochs=args["num_epochs"],
                      max_train_steps=None,
-                     max_val_steps=None)
+                     max_val_steps=None,
+                     use_estimator_train_n_eval=args["use_estimator_train_n_eval"])
 
     memory_usage_psutil("5. Before exporitng the model")
 
@@ -474,6 +497,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Testing TF Dataset Memory usage : ')
 
     parser.add_argument('-d', "--delete", type=str2bool, default=False, help="Delete old data files")
+    parser.add_argument('-etne', "--use_estimator_train_n_eval", type=str2bool, default=False, help="use_estimator_train_n_eval API")
+
     # parser.add_argument('-m', "--mode", default="", help="[test_iterator]")
     parser.add_argument('-ntf', "--num_tfrecord_train_files", default=5, type=int, help="number of train tfrecord files to generate")
     parser.add_argument('-ntfv', "--num_tfrecord_val_files", default=1,  type=int, help="number of val tfrecord files to generate")
